@@ -1,0 +1,50 @@
+version: '3.8'
+
+networks:
+ app-network:
+   driver: bridge
+
+services:
+  frontend:
+    build: ./node-app
+    ports:
+      - "3000:3000"  
+    depends_on:
+      - backend
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080 
+    volumes:
+      - ./node-app:/app
+    networks:
+     - app-network
+    command: sh -c "npm install && npm run start"
+
+  backend:
+    build: ./flask-app
+    ports:
+      - "8080:8080"  
+      - "8084:8084"
+      - "8888:8888"
+    depends_on:
+      - elasticsearch
+    volumes:
+      - ./flask-app:/app
+    networks:
+     - app-network
+     
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.4.3
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+     - app-network
+
+volumes:
+  elasticsearch_data:

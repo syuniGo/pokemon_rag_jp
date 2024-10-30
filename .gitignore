@@ -1,0 +1,5 @@
+node_modules
+elasticsearch_data/
+*.pyc
+*.log
+*.ipynb
